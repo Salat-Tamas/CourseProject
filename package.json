@@ -1,0 +1,25 @@
+{
+  "name": "courseproject",
+  "version": "1.0.0",
+  "description": "A simple Express.js application",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "build:css": "postcss src/css/tailwind.css -o src/css/output.css"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.17.1",
+    "express-session": "^1.18.1",
+    "tailwindcss": "^2.2.19"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.0",
+    "nodemon": "^2.0.7",
+    "postcss": "^8.4.6",
+    "postcss-cli": "^9.1.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
