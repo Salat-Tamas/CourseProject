@@ -24,7 +24,10 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => indexController.getHome(req, res));
+app.get('/courses/create', (req, res) => indexController.getCreateCourse(req, res));
+app.post('/courses/create', (req, res) => indexController.createCourse(req, res));
 app.get('/courses/:id', (req, res) => indexController.getCourse(req, res));
+
 app.use(authRoutes);
 
 app.listen(3000, () => {

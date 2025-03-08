@@ -51,6 +51,36 @@ class IndexController {
     getAbout(req, res) {
         res.send('This is the about page.');
     }
+
+    getCreateCourse(req, res) {
+        // Check if user is logged in
+        if (!req.session.user) {
+            return res.redirect('/login');
+        }
+        
+        res.render('create-course');
+    }
+
+    createCourse(req, res) {
+        // Check if user is logged in
+        if (!req.session.user) {
+            return res.redirect('/login');
+        }
+        
+        const { title, description } = req.body;
+        
+        // Basic validation
+        if (!title || !description) {
+            return res.render('create-course', { 
+                error: 'Title and description are required',
+                values: { title, description }
+            });
+        }
+        
+        // In a real application, you would save the course to a database
+        // For now, just redirect to the home page
+        res.redirect('/');
+    }
 }
 
 module.exports = IndexController;
