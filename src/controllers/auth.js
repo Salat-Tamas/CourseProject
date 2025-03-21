@@ -2,37 +2,68 @@ const users = []; // This should be replaced with a proper database in a real ap
 
 class AuthController {
     getLogin(req, res) {
-        res.render('login');
+        res.render('login', { error: null });
     }
 
     postLogin(req, res) {
         const { username, password } = req.body;
         const user = users.find(u => u.username === username && u.password === password);
+        
         if (user) {
             req.session.user = user;
-            res.redirect('/profile');
+            
+            // Redirect to the stored URL or default to profile
+            const returnTo = req.session.returnTo || '/profile';
+            delete req.session.returnTo;
+            
+            res.redirect(returnTo);
         } else {
-            res.redirect('/register'); // Redirect to register page if user is not found
+            res.render('login', { 
+                error: 'Invalid username or password',
+                values: { username }
+            });
         }
     }
 
     getRegister(req, res) {
-        res.render('register');
+        res.render('register', { error: null });
     }
 
     postRegister(req, res) {
-        const { username, password } = req.body;
+        const { username, password, confirmPassword } = req.body;
+        
+        // Basic validation
+        if (!username || !password) {
+            return res.render('register', {
+                error: 'Username and password are required',
+                values: { username }
+            });
+        }
+        
+        if (password !== confirmPassword) {
+            return res.render('register', {
+                error: 'Passwords do not match',
+                values: { username }
+            });
+        }
+        
+        // Check if username already exists
+        if (users.some(u => u.username === username)) {
+            return res.render('register', {
+                error: 'Username already exists',
+                values: { username }
+            });
+        }
+        
         const user = { username, password };
         users.push(user);
-        res.redirect('/login');
+        
+        req.session.user = user;
+        res.redirect('/profile');
     }
 
     getProfile(req, res) {
-        if (req.session && req.session.user) {
-            res.render('profile', { user: req.session.user });
-        } else {
-            res.redirect('/login');
-        }
+        res.render('profile', { user: req.session.user });
     }
 
     postLogout(req, res) {
