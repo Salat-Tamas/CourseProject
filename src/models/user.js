@@ -1,14 +1,8 @@
-const users = [];
+const mongoose = require('mongoose');
 
-module.exports = {
-  find: (username, password) =>
-    users.find(u => u.username === username && u.password === password),
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true }
+}, { timestamps: true });
 
-  validateAndCreate: (username, password, confirmPassword) => {
-    if (!username || !password) return 'Username and password are required';
-    if (password !== confirmPassword) return 'Passwords do not match';
-    if (users.some(u => u.username === username)) return 'Username exists';
-    users.push({ username, password });
-    return null;
-  }
-};
+module.exports = mongoose.model('User', userSchema);
