@@ -1,6 +1,7 @@
 const express = require('express');
-const Course = require('../models/course');
-const { isAuthenticated } = require('../middleware/auth');
+const Course  = require('../models/course');
+const { isAuthenticated }             = require('../middleware/auth');
+const { validateCourseBody, validateObjectId, loadCourse } = require('../middleware/course');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
@@ -8,44 +9,57 @@ router.get('/', async (req, res) => {
   res.render('home', { courses });
 });
 
+// Create
 router.get('/courses/create', isAuthenticated, (req, res) =>
   res.render('create-course', { error: null, values: {} })
 );
-
-router.post('/courses/create', isAuthenticated, async (req, res) => {
-  const { title, description } = req.body;
-  if (!title || !description) {
-    return res.render('create-course', {
-      error: 'Title and description are required',
-      values: { title, description }
-    });
+router.post(
+  '/courses/create',
+  isAuthenticated,
+  validateCourseBody,
+  async (req, res, next) => {
+    const { title, description } = req.body;
+    try {
+      const c = await Course.create({ title, description });
+      res.redirect(`/courses/${c._id}`);
+    } catch (err) { next(err); }
   }
-  const course = await Course.create({ title, description });
-  res.redirect(`/courses/${course._id}`);
-});
+);
 
-router.get('/courses/:id', async (req, res) => {
-  const course = await Course.findById(req.params.id);
-  if (!course) return res.status(404).send('Course not found');
-  res.render('course', { course });
-});
-
-router.get('/courses/:id/edit', isAuthenticated, async (req, res) => {
-  const course = await Course.findById(req.params.id);
-  if (!course) return res.status(404).send('Course not found');
-  res.render('edit-course', { error: null, values: course });
-});
-
-router.post('/courses/:id/edit', isAuthenticated, async (req, res) => {
-  const { title, description } = req.body;
-  if (!title || !description) {
-    return res.render('edit-course', {
-      error: 'Title and description are required',
-      values: { _id: req.params.id, title, description }
-    });
+// View
+router.get(
+  '/courses/:id',
+  validateObjectId,
+  loadCourse,
+  (req, res) => {
+    res.render('course', { course: req.course });
   }
-  await Course.findByIdAndUpdate(req.params.id, { title, description });
-  res.redirect(`/courses/${req.params.id}`);
-});
+);
+
+// Edit
+router.get(
+  '/courses/:id/edit',
+  isAuthenticated,
+  validateObjectId,
+  loadCourse,
+  (req, res) => {
+    res.render('edit-course', { error: null, values: req.course });
+  }
+);
+router.post(
+  '/courses/:id/edit',
+  isAuthenticated,
+  validateObjectId,
+  loadCourse,
+  validateCourseBody,
+  async (req, res, next) => {
+    try {
+      const { title, description } = req.body;
+      await Course.findByIdAndUpdate(req.params.id, { title, description });
+      res.redirect(`/courses/${req.params.id}`);
+    } catch (err) { next(err); }
+  }
+);
+
 
 module.exports = router;
