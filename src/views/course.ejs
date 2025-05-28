@@ -29,11 +29,22 @@
     </header>
     <main class="container px-4 py-8 pt-32 mx-auto">
         <div class="p-6 rounded-lg shadow-lg bg-primary comic-border min-h-2/3-screen">
-            <h2 class="mb-2 text-2xl font-bold text-black"><%= course.title %></h2>
-            <p class="text-secondary"><%= course.description %></p>
-            <% if (user) { %>
-                <a href="/courses/<%= course.id %>/edit" class="inline-block p-2 mt-4 text-white rounded bg-accent">Edit Course</a>
-            <% } %>
+          <h2 class="mb-2 text-2xl font-bold text-black"><%= course.title %></h2>
+          <p class="text-secondary"><%= course.description %></p>
+        
+          <% if (user) { %>
+            <a href="/courses/<%= course.id %>/edit" class="inline-block p-2 mt-4 text-white rounded bg-accent">Edit Course</a>
+            <form 
+              action="/courses/<%= course.id %>/delete" 
+              method="POST" 
+              class="inline-block mt-4 ml-2"
+              onsubmit="return confirm('Biztosan törölni szeretnéd ezt a kurzust?');"
+            >
+              <button type="submit" class="p-2 text-white bg-red-600 rounded hover:bg-red-700">
+                Delete Course
+              </button>
+            </form>
+          <% } %>
         </div>
     </main>
     <footer class="mt-8 shadow bg-primary comic-border">

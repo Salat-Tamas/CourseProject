@@ -61,5 +61,20 @@ router.post(
   }
 );
 
+router.post(
+  '/courses/:id/delete',
+  isAuthenticated,
+  validateObjectId,
+  loadCourse,
+  async (req, res, next) => {
+    try {
+      await Course.findByIdAndDelete(req.params.id);
+      res.redirect('/');
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 
 module.exports = router;
